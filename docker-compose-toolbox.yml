@@ -1,0 +1,124 @@
+version: "3.5"
+services:
+
+  memcached:
+    container_name: memcached
+    image: memcached:alpine
+    ports:
+      - "11211:11211"
+    networks:
+      - default
+      - development
+
+  redis:
+    container_name: redis
+    build:
+      context: ./backend/redis
+      dockerfile: Dockerfile.redis
+    environment:
+      - "REDIS_DEBUG_LEVEL=notice"
+      - "REDIS_SERVICE_PORT=6379"
+      - "REDIS_KEEPALIVE_TIME=300"
+      - "REDIS_TIMEOUT=600"
+      - "REDIS_TCP_BACKLOG=255"
+      - "REDIS_MAXCLIENT=1500"
+      - "REDIS_MAXMEMORY=24mb"
+      - "REDIS_DATABASECOUNT=8"
+    ports:
+      - "6379:6379"
+    command: confd -backend env
+    volumes:
+      - redisstore:/data
+    networks:
+      - default
+      - development
+
+  defaultdb:
+    container_name: defaultdb
+    build:
+      context: ./backend/mysql
+      dockerfile: Dockerfile.mysql
+    environment:
+      COMPOSE_CONVERT_WINDOWS_PATHS: 1
+      MYSQL_ROOT_PASSWORD: mysecret
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbuser
+    command: --innodb-use-native-aio=0
+    volumes:
+      - ./conf.d/:/etc/mysql/conf.d
+      - ./initdb/:/docker-entrypoint-initdb.d
+      - datastore:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - default
+      - development
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - default
+      - development
+  app:
+    container_name: app
+    build:
+      context: ./frontend/app
+      dockerfile: Dockerfile.app
+      args:
+        - 'PHP_VERSION=7.2.22'
+        - 'PECL_INSTALL="igbinary msgpack memcached"'
+    command: confd -backend env
+    environment:
+      - "TZ=Asia/Tokyo"
+      - "LANG=ja_JP.UTF-8"
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - default
+      - development
+    
+  minio:
+    container_name: minio
+    image: minio/minio
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio
+    command: server http://minio{1...4}/export
+    volumes:
+      - s3store:/export
+    ports:
+      - "9000:9000"
+    networks:
+      - default
+      - development
+
+volumes:
+  workdir:
+    driver_opts:
+      type: none
+      device: $HOME/volumes/work
+      o: bind
+  datastore:
+    driver_opts:
+      type: none
+      device: $HOME/volumes/datastore
+      o: bind
+  redisstore:
+    driver_opts:
+      type: none
+      device: $HOME/volumes/redisstore
+      o: bind
+  s3store:
+    driver_opts:
+      type: none
+      device: $HOME/volumes/s3store
+      o: bind
+networks:
+  development:
+    external: true
+

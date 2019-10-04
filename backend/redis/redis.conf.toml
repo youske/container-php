@@ -1,0 +1,14 @@
+[template]
+src = "redis.conf.tmpl"
+dest = "/etc/redis.conf"
+keys = [
+      "REDIS_DEBUG_LEVEL",
+      "REDIS_KEEPALIVE_TIME",
+      "REDIS_TIMEOUT",
+      "REDIS_TCP_BACKLOG",
+      "REDIS_SERVICE_PORT",
+      "REDIS_DATABASECOUNT",
+      "REDIS_MAXCLIENT",
+      "REDIS_MAXMEMORY",
+]
+reload_cmd = '/usr/local/bin/redis-server /etc/redis.conf'

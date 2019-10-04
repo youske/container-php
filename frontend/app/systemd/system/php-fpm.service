@@ -1,0 +1,17 @@
+[Unit]
+Description = php-fpm service
+After=local-fs.target network.target nginx.service
+
+[Service]
+PIDFile = /var/run/php-fpm/php-fpm.pid
+ExecStart = /home/appuser/.anyenv/envs/phpenv/versions/7.2.22/sbin/php-fpm --fpm-config /home/appuser/.anyenv/envs/phpenv/versions/7.2.22/etc/php-fpm.conf --nodaemonize
+ExecReload=/bin/kill -USR2 $MAINPID
+
+#Restart   = always
+Type      = simple
+#User      = appuser
+#Group     = appuser
+
+[Install]
+WantedBy = multi-user.target
+~

@@ -1,0 +1,12 @@
+FROM redis:alpine
+
+#RUN groupadd appcreators && groupadd appadmin
+
+## confd
+RUN mkdir -p /etc/confd/{conf.d,templates} && \
+    wget -q "https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64" -O /usr/local/bin/confd && \
+    chmod +x /usr/local/bin/confd
+
+COPY ./redis.conf.toml /etc/confd/conf.d/
+COPY ./redis.conf.tmpl /etc/confd/templates/
+COPY ./sysctl.d/redis.conf /etc/sysctl.d/
