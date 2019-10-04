@@ -39,6 +39,7 @@ services:
       context: ./backend/mysql
       dockerfile: Dockerfile.mysql
     environment:
+      TZ: Asia/Tokyo
       COMPOSE_CONVERT_WINDOWS_PATHS: 1
       MYSQL_ROOT_PASSWORD: mysecret
       MYSQL_USER: dbuser

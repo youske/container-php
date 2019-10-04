@@ -20,6 +20,8 @@ COPY ./sudoers.d/develop /etc/sudoers.d/develop
 
 ARG PHP_VERSION=7.2.21
 ARG PECL_INSTALL=igbinary
+ARG PHP_BUILD_CONFIGURE_OPTS=--with-pear
+ARG PHP_BUILD_EXTRA_MAKE_ARGUMENTS=-j4
 
 USER appuser
 RUN git clone https://github.com/riywo/anyenv ~/.anyenv && \
@@ -32,4 +34,3 @@ RUN . ~/.bash_profile && \
 RUN . ~/.bash_profile && phpenv install ${PHP_VERSION} && phpenv rehash
 RUN phpenv global ${PHP_VERSION} && \
     pecl install ${PECL_INSTALL}
-
