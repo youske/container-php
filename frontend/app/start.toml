@@ -1,0 +1,7 @@
+[template]
+src = "start.tmpl"
+dest = "/tmp/start.tmpl"
+keys = [
+    "LANG"
+]
+reload_cmd = 'sudo /usr/sbin/crond'
