@@ -12,7 +12,7 @@ RUN amazon-linux-extras install -y epel && \
     perl-ExtUtils-MakeMaker
 
 RUN  adduser admin && adduser appuser && groupadd develop && \
-     usermod -aG develop admin && usermod -aG develop appuser 
+     usermod -aG develop admin && usermod -aG develop appuser
 
 COPY ./tmpfiles.d/php-fpm.conf /etc/tmpfiles.d/php-fpm.conf
 COPY ./sysctl.d/sysctl.conf /etc/sysctl.d/sysctl.conf
@@ -24,6 +24,7 @@ ARG PHP_BUILD_CONFIGURE_OPTS=--with-pear
 ARG PHP_BUILD_EXTRA_MAKE_ARGUMENTS=-j4
 
 USER appuser
+COPY mysql/dot.my.cnf ~/.my.cnf
 RUN git clone https://github.com/riywo/anyenv ~/.anyenv && \
     echo 'export PATH="$HOME/.anyenv/bin:$PATH"' >> ~/.bash_profile && \
     echo 'eval "$(anyenv init -)"' >> ~/.bash_profile
@@ -32,5 +33,5 @@ RUN . ~/.bash_profile && \
     yes | anyenv install --init && anyenv install phpenv
 
 RUN . ~/.bash_profile && phpenv install ${PHP_VERSION} && phpenv rehash
-RUN phpenv global ${PHP_VERSION} && \
+RUN . ~/.bash_profile && phpenv global ${PHP_VERSION} && \
     pecl install ${PECL_INSTALL}

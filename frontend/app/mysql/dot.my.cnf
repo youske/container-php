@@ -1,0 +1,3 @@
+[client]
+protocol=TCP
+default-character-set = utf8mb4

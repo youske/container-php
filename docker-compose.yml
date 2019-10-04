@@ -1,6 +1,5 @@
 version: "3.5"
 services:
-
   memcached:
     container_name: memcached
     image: memcached:alpine
@@ -15,18 +14,19 @@ services:
     build:
       context: ./backend/redis
       dockerfile: Dockerfile.redis
+    command: confd -backend env
     environment:
-      - "REDIS_DEBUG_LEVEL=notice"
-      - "REDIS_SERVICE_PORT=6379"
-      - "REDIS_KEEPALIVE_TIME=300"
-      - "REDIS_TIMEOUT=600"
-      - "REDIS_TCP_BACKLOG=255"
-      - "REDIS_MAXCLIENT=1500"
-      - "REDIS_MAXMEMORY=24mb"
-      - "REDIS_DATABASECOUNT=8"
+      TZ: Asia/Tokyo
+      REDIS_DEBUG_LEVEL: notice
+      REDIS_SERVICE_PORT: 6379
+      REDIS_KEEPALIVE_TIME: 300
+      REDIS_TIMEOUT: 600
+      REDIS_TCP_BACKLOG: 255
+      REDIS_MAXCLIENT: 1500
+      REDIS_MAXMEMORY: 24mb
+      REDIS_DATABASECOUNT: 8
     ports:
       - "6379:6379"
-    command: confd -backend env
     volumes:
       - redisstore:/data
     networks:
@@ -84,4 +84,3 @@ volumes:
 networks:
   development:
     external: true
-
