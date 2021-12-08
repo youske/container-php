@@ -2,9 +2,13 @@
 ====================
 
 # 概要
+迅速にバックエンドを構築するためのdocker-compose
+フロントエンドは別に想定されているのでシステム側で用意する
 
 
 # はじめに
+
+
 
 
 # 事前準備 
@@ -13,15 +17,20 @@
 docker & docker-composeをホストマシンにて入れておく
 windowsでは toolbox用のdocker-composeファイルを用意しているのでそちらから起動する
 
+
 ##
 volumes の設定
 docker-compose.yml 側の設定と合わせる
 $HOME/volumes/**
 
 ### docker networkの設定
+docker-composeが管理するコンテナ間で通信するための仮想ネットワークを作成しておく
+別のdokcer-composeの管理するコンテナでも通信できるようにexternalとしておく
 ```
 $ docker network create development
+
 ```
+
 
 
 ## 起動
@@ -37,5 +46,16 @@ docker-compose up -d <service>
 
 
 
+
+# 削除
+docker-compose downにてすべてのコンテナを停止させ
+ローカルボーリュームを削除
+Docker Networkを撤去
+```
+$ docker-compose down
+$ rm -r ./volumes 
+$ dockert network destroy development
+
+```
 
 
