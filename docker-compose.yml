@@ -12,6 +12,18 @@ services:
 
   redis:
     container_name: redis
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisstore:/data
+    networks:
+      - default
+      - development
+
+  redisx:
+    container_name: redisx
     build:
       context: ./backend/redis
       dockerfile: Dockerfile.redis
