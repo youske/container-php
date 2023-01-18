@@ -81,6 +81,16 @@ services:
       - default
       - development
 
+  redisinsight:
+    image: redislabs/redisinsight
+    restart: unless-stopped
+    ports:
+      - 8011:8001
+    volumes:
+      - ./redisinsight:/db
+    depends_on: 
+      - redis
+
 volumes:
   workdir:
     driver_opts:
