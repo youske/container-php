@@ -1,0 +1,89 @@
+version: "3.3"
+services:
+  traefik:
+    image: "traefik:v2.10"
+    container_name: "traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      #- "80:80"
+      - "8000:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  adminer:
+    container_name: adminer
+    build:
+      context: ./backend/adminer
+      dockerfile: ./Dockerfile
+   # restart: u#nless-stopped
+    environment:
+      TZ: Asia/Tokyo
+      #- "ADMINER_PLUGINS=login-servers-opt"
+      ADMINER_DESIGN: "dracula"
+    labels:
+      - "traefik.enable=true"
+      #- "traefik.http.routers.releaseadminer.rule=Host(`localhost`)"
+      - "traefik.http.routers.adminer.rule=PathPrefix(`/dd`)" #/service-aは、service-aにルーティングする
+      - "traefik.http.routers.adminer.entrypoints=web"
+    networks:
+      - default
+      - development
+
+  radminer:
+    container_name: releaseadminer
+    build:
+      context: ./backend/adminer
+      dockerfile: ./Dockerfile.release
+   # restart: u#nless-stopped
+    environment:
+      TZ: Asia/Tokyo
+      ADMINER_DESIGN: "hydra"
+      #- "ADMINER_PLUGINS='login-servers'"
+    labels:
+      - "traefik.enable=true"
+      #- "traefik.http.routers.releaseadminer.rule=Host(`localhost`)"
+      - "traefik.http.routers.releaseadminer.rule=PathPrefix(`/rr`)" #/service-aは、service-aにルーティングする
+      - "traefik.http.routers.releaseadminer.entrypoints=web"
+    networks:
+      - default
+      - development
+
+
+  defaultdb:
+    container_name: defaultdb
+    build:
+      context: ./backend/mysql
+      dockerfile: Dockerfile.mysql
+    #restart: unless-stopped
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      TZ: Asia/Tokyo
+      MYSQL_ROOT_PASSWORD: mysecret
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbuser
+    #restart: unless-stopped
+    volumes:
+      - ./backend/mysql/conf.d/:/etc/mysql/conf.d
+      - ./backend/mysql/initdb/:/docker-entrypoint-initdb.d
+      - ./datastore:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - default
+      - development
+
+
+volumes:
+  datastore:
+    driver_opts:
+      type: none
+      device: $HOME/volumes/datastore
+      o: bind
+
+networks:
+  development:
+    external: true
